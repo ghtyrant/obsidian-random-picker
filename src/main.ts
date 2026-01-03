@@ -1,0 +1,223 @@
+import {
+  App,
+  Editor,
+  FuzzySuggestModal,
+  MarkdownView,
+  Modal,
+  Notice,
+  Plugin,
+  Setting,
+  TFile,
+  TFolder,
+} from "obsidian";
+
+import { SettingTab, RandomPickerPluginSettings, DEFAULT_SETTINGS } from "./settings";
+import { RandomSource, RandomPickTemplate } from "./template";
+
+export default class RandomPickerPlugin extends Plugin {
+  settings: RandomPickerPluginSettings;
+
+  async onload() {
+    await this.loadSettings();
+
+    this.addCommand({
+      id: "insert-random-pick",
+      name: "Insert random pick",
+      editorCheckCallback: (
+        checking: boolean,
+        editor: Editor,
+        _view: MarkdownView
+      ) => {
+        const markdownView =
+          this.app.workspace.getActiveViewOfType(MarkdownView);
+
+        if (markdownView) {
+          if (!checking) {
+            new RandomSourceSelectorModal(
+              this.app,
+              this.settings.templates,
+              (template) =>
+                this.insertRandomPickFromSource(
+                  editor,
+                  template
+                )
+            ).open();
+          }
+
+          return true;
+        }
+
+        return false;
+      },
+    });
+
+    this.addCommand({
+      id: "insert-random-pick-with-preview",
+      name: "Insert random pick with preview",
+      editorCheckCallback: (
+        checking: boolean,
+        editor: Editor,
+        _view: MarkdownView
+      ) => {
+        const markdownView =
+          this.app.workspace.getActiveViewOfType(MarkdownView);
+
+        if (markdownView) {
+          if (!checking) {
+            new RandomSourceSelectorModal(
+              this.app,
+              this.settings.templates,
+              (template) =>
+                this.showPreviewModal(editor, template)
+            ).open();
+          }
+
+          return true;
+        }
+
+        return false;
+      },
+    });
+
+    this.addSettingTab(new SettingTab(this.app, this));
+  }
+
+  onunload() { }
+
+  async loadSettings() {
+    this.settings = Object.assign(
+      {},
+      DEFAULT_SETTINGS,
+      await this.loadData()
+    );
+
+    this.settings.templates = this.settings.templates.map(
+      (t) => new RandomPickTemplate(t.name, t.template)
+    );
+  }
+
+  async saveSettings() {
+    await this.saveData(this.settings);
+  }
+
+  editorInsertText(editor: Editor, text: string) {
+    editor.replaceRange(text, editor.getCursor());
+
+    // Move cursor to the end of the inserted text
+    const newCursorPosition =
+      editor.posToOffset(editor.getCursor()) + text.length;
+    editor.setCursor(editor.offsetToPos(newCursorPosition));
+  }
+
+  getRandomSources(): Map<string, RandomSource> {
+    const randomSources = new Map();
+    const randomNotesFolder = this.app.vault.getFolderByPath(this.settings.listsFolder);
+
+    randomNotesFolder?.children.forEach((file) => {
+      randomSources.set(file.name, new RandomSource(this.app, file));
+    });
+
+    return randomSources;
+  }
+
+  showPreviewModal(editor: Editor, template: RandomPickTemplate) {
+    new RandomPickPreviewModal(
+      this.app,
+      template,
+      this.getRandomSources(),
+      (text) => this.editorInsertText(editor, text)
+    ).open();
+  }
+
+  insertRandomPickFromSource(editor: Editor, template: RandomPickTemplate) {
+    template
+      .generate(this.getRandomSources())
+      .then((value) => this.editorInsertText(editor, value));
+  }
+}
+
+class RandomPickPreviewModal extends Modal {
+  template: RandomPickTemplate;
+  sources: Map<string, RandomSource>;
+  onSubmit: (result: string) => void;
+
+  constructor(
+    app: App,
+    template: RandomPickTemplate,
+    sources: Map<string, RandomSource>,
+    onSubmit: (result: string) => void
+  ) {
+    super(app);
+    this.template = template;
+    this.sources = sources;
+    this.onSubmit = onSubmit;
+  }
+
+  onOpen() {
+    const { contentEl } = this;
+    contentEl.createEl("h1", {
+      text: `Random Pick - ${this.template.name}`,
+    });
+
+    const nameEl = contentEl.createEl("p");
+    this.template
+      .generate(this.sources)
+      .then((text) => nameEl.setText(text));
+
+    new Setting(contentEl)
+      .addButton((btn) =>
+        btn.setButtonText("Regenerate").onClick(() => {
+          this.template
+            .generate(this.sources)
+            .then((text) => nameEl.setText(text));
+        })
+      )
+      .addButton((btn) =>
+        btn
+          .setButtonText("Insert")
+          .setCta()
+          .onClick(() => {
+            this.close();
+            this.onSubmit(nameEl.getText());
+          })
+      );
+  }
+
+  onClose() {
+    const { contentEl } = this;
+    contentEl.empty();
+  }
+}
+
+class RandomSourceSelectorModal extends FuzzySuggestModal<RandomPickTemplate> {
+  callback: (item: RandomPickTemplate) => void;
+  templates: RandomPickTemplate[];
+  randomLists: Map<string, string[]>;
+
+  constructor(
+    app: App,
+    templates: RandomPickTemplate[],
+    callback: (item: RandomPickTemplate) => void
+  ) {
+    super(app);
+    this.callback = callback;
+    this.templates = templates;
+  }
+
+  getItems(): RandomPickTemplate[] {
+    return this.templates;
+  }
+
+  getItemText(item: RandomPickTemplate): string {
+    return item.name;
+  }
+
+  onChooseItem(
+    item: RandomPickTemplate,
+    _evt: MouseEvent | KeyboardEvent
+  ): void {
+    this.callback(item);
+  }
+}
+
+
