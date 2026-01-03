@@ -88,7 +88,7 @@ export class RandomPickTemplate {
         output += await sources.get(varName)?.getRandomPick();
       } else {
         new Notice(
-          `[Random Picker] Error in '${this.name}': ${varName} not found!`
+          `[Random Picker] Error in template '${this.name}': ${varName} not found!`
         );
       }
     }
@@ -96,5 +96,4 @@ export class RandomPickTemplate {
     return output;
   }
 }
-
 

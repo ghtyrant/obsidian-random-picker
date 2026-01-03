@@ -109,14 +109,33 @@ export default class RandomPickerPlugin extends Plugin {
     editor.setCursor(editor.offsetToPos(newCursorPosition));
   }
 
+  innerGetRandomSources(parent: TFolder, sources: Map<string, RandomSource>, parentName: string = "") {
+    parent.children.forEach((file) => {
+      let sourceName = file.name;
+
+      if (file instanceof TFile) {
+        sourceName = file.basename;
+      }
+
+      sources.set(`${parentName}${sourceName}`, new RandomSource(this.app, file));
+
+      if (file instanceof TFolder) {
+        this.innerGetRandomSources(file, sources, `${parentName}${sourceName}/`);
+      }
+    })
+  }
+
   getRandomSources(): Map<string, RandomSource> {
     const randomSources = new Map();
     const randomNotesFolder = this.app.vault.getFolderByPath(this.settings.listsFolder);
 
-    randomNotesFolder?.children.forEach((file) => {
-      randomSources.set(file.name, new RandomSource(this.app, file));
-    });
+    if (!randomNotesFolder) {
+      new Notice(`Random Picker: Lists folder not found at path "${this.settings.listsFolder}"`);
+      return randomSources;
+    }
 
+    this.innerGetRandomSources(randomNotesFolder, randomSources);
+    console.log("Random Picker: Loaded random sources:", randomSources);
     return randomSources;
   }
 
@@ -159,17 +178,28 @@ class RandomPickPreviewModal extends Modal {
       text: `Random Pick - ${this.template.name}`,
     });
 
-    const nameEl = contentEl.createEl("p");
+    const previewEl = contentEl.createEl("textarea", {
+      attr: {
+        readonly: 'true',
+      },
+      cls: 'error-text'
+    });
+    previewEl.setCssProps({
+      width: '100%',
+      height: '150px',
+      resize: 'vertical'
+    });
+
     this.template
       .generate(this.sources)
-      .then((text) => nameEl.setText(text));
+      .then((text) => previewEl.setText(text));
 
     new Setting(contentEl)
       .addButton((btn) =>
         btn.setButtonText("Regenerate").onClick(() => {
           this.template
             .generate(this.sources)
-            .then((text) => nameEl.setText(text));
+            .then((text) => previewEl.setText(text));
         })
       )
       .addButton((btn) =>
@@ -178,7 +208,7 @@ class RandomPickPreviewModal extends Modal {
           .setCta()
           .onClick(() => {
             this.close();
-            this.onSubmit(nameEl.getText());
+            this.onSubmit(previewEl.getText());
           })
       );
   }

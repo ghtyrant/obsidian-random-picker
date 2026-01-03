@@ -43,57 +43,62 @@ export class SettingTab extends PluginSettingTab {
     this.warnText.setText(message);
   }
 
+  displayTemplate(template: RandomPickTemplate): void {
+    this.templatesEl.createEl("small", { text: "Name" });
+    const nameSetting = new Setting(this.templatesEl)
+      .setClass("random-picker-template-setting")
+      .addText((text) => {
+        text.setValue(template.name).onChange(async (value) => {
+          template.name = value;
+          await this.plugin.saveSettings();
+        });
+        text.setPlaceholder("Unique Name");
+
+        text.inputEl.addClass("random-picker-full");
+      });
+
+    nameSetting.infoEl.remove();
+
+    this.templatesEl.createEl("small", { text: "Template" });
+    const templateSetting = new Setting(this.templatesEl)
+      .setClass("random-picker-template-setting")
+      .addTextArea((text) => {
+        text.setValue(template.template).onChange(async (value) => {
+          template.template = value;
+          await this.plugin.saveSettings();
+        });
+        text.setPlaceholder(
+          "e.g. Random Name ${Names} ${Surenames}"
+        );
+        text.inputEl.addClass("random-picker-full");
+      });
+
+    templateSetting.infoEl.remove();
+
+    const deleteButton = new Setting(this.templatesEl)
+      .setClass("random-picker-template-setting")
+      .addButton((btn) =>
+        btn
+          .setButtonText("Delete")
+          .setWarning()
+          .onClick(() => {
+            this.plugin.settings.templates.remove(template);
+            this.templatesEl.empty();
+            this.displayTemplates();
+          })
+      );
+
+    deleteButton.infoEl.remove();
+
+    this.templatesEl.createEl("hr", {
+      cls: "random-picker-template-separator",
+    });
+
+  }
+
   displayTemplates(): void {
     this.plugin.settings.templates.forEach((template) => {
-      this.templatesEl.createEl("small", { text: "Name" });
-      const nameSetting = new Setting(this.templatesEl)
-        .setClass("random-picker-template-setting")
-        .addText((text) => {
-          text.setValue(template.name).onChange(async (value) => {
-            template.name = value;
-            await this.plugin.saveSettings();
-          });
-          text.setPlaceholder("Unique Name");
-
-          text.inputEl.addClass("random-picker-full");
-        });
-
-      nameSetting.infoEl.remove();
-
-      this.templatesEl.createEl("small", { text: "Template" });
-      const templateSetting = new Setting(this.templatesEl)
-        .setClass("random-picker-template-setting")
-        .addTextArea((text) => {
-          text.setValue(template.template).onChange(async (value) => {
-            template.template = value;
-            await this.plugin.saveSettings();
-          });
-          text.setPlaceholder(
-            "e.g. Random Name ${Names} ${Surenames}"
-          );
-          text.inputEl.addClass("random-picker-full");
-        });
-
-      templateSetting.infoEl.remove();
-
-      const deleteButton = new Setting(this.templatesEl)
-        .setClass("random-picker-template-setting")
-        .addButton((btn) =>
-          btn
-            .setButtonText("Delete")
-            .setWarning()
-            .onClick(() => {
-              this.plugin.settings.templates.remove(template);
-              this.templatesEl.empty();
-              this.displayTemplates();
-            })
-        );
-
-      deleteButton.infoEl.remove();
-
-      this.templatesEl.createEl("hr", {
-        cls: "random-picker-template-separator",
-      });
+      this.displayTemplate(template);
     });
   }
 
