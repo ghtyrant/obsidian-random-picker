@@ -178,12 +178,7 @@ class RandomPickPreviewModal extends Modal {
       attr: {
         readonly: 'true',
       },
-      cls: 'error-text'
-    });
-    previewEl.setCssProps({
-      width: '100%',
-      height: '150px',
-      resize: 'vertical'
+      cls: 'random-picker-fit-content random-picker-full-width'
     });
 
     this.template
