@@ -2,45 +2,66 @@ import {
   App,
   PluginSettingTab,
   Setting,
+  TAbstractFile,
   TFile,
+  TFolder,
+  AbstractInputSuggest,
 } from "obsidian";
 
 import RandomPickerPlugin from "./main";
 import { RandomPickTemplate } from "./template";
 
 export interface RandomPickerPluginSettings {
-  listsFolder: string;
+  dataFolder: string;
   templates: RandomPickTemplate[];
 }
 
 export const DEFAULT_SETTINGS: RandomPickerPluginSettings = {
-  listsFolder: "Random/",
+  dataFolder: "Random",
   templates: [],
 };
 
+export class FolderSuggest extends AbstractInputSuggest<TFolder> {
+  constructor(public app: App, public inputEl: HTMLInputElement) {
+    super(app, inputEl);
+    //this.textInputEl = inputEl;
+  }
+
+  getSuggestions(inputStr: string): TFolder[] {
+    const abstractFiles = this.app.vault.getAllLoadedFiles();
+    const folders: TFolder[] = [];
+    const lowerCaseInputStr = inputStr.toLowerCase();
+
+    abstractFiles.forEach(folder => {
+      if (
+        folder instanceof TFolder &&
+        folder.path.toLowerCase().contains(lowerCaseInputStr)
+      ) {
+        folders.push(folder);
+      }
+    });
+
+    return folders;
+  }
+
+  renderSuggestion(file: TFolder, el: HTMLElement): void {
+    el.setText(file.path);
+  }
+
+  selectSuggestion(value: TFolder, ev: MouseEvent | KeyboardEvent): void {
+    this.setValue(value.path);
+    this.inputEl.trigger("input");
+    this.close();
+  }
+}
+
 export class SettingTab extends PluginSettingTab {
   plugin: RandomPickerPlugin;
-  warnText: HTMLElement;
   templatesEl: HTMLElement;
 
   constructor(app: App, plugin: RandomPickerPlugin) {
     super(app, plugin);
     this.plugin = plugin;
-  }
-
-  updateWarnText(value: string) {
-    const folder = this.app.vault.getAbstractFileByPath(value);
-    let message = "";
-
-    if (folder == null) {
-      message = "Folder does not exist!";
-    }
-
-    if (folder instanceof TFile) {
-      message = "Please specify a path to a folder!";
-    }
-
-    this.warnText.setText(message);
   }
 
   displayTemplate(template: RandomPickTemplate): void {
@@ -112,10 +133,10 @@ export class SettingTab extends PluginSettingTab {
       .setHeading()
       .setName("Data Folder")
       .setDesc(
-        "The plugin will read all files in the folder and allows you to choose from which one to pick a random line."
+        "The folder containing your data files for random selection."
       )
-      .addSearch((cb) => {
-        cb.setValue(this.plugin.settings.listsFolder)
+      .addSearch(cb => {
+        cb.setValue(this.plugin.settings.dataFolder)
           .setPlaceholder("e.g. My Folder/Subfolder")
           .onChange(async (value) => {
             // Make sure the folder name does not end with a slash
@@ -123,18 +144,12 @@ export class SettingTab extends PluginSettingTab {
               value = value.slice(0, -1);
             }
 
-            this.updateWarnText(value);
-            this.plugin.settings.listsFolder = value;
+            this.plugin.settings.dataFolder = value;
             await this.plugin.saveSettings();
           });
+
+        new FolderSuggest(this.plugin.app, cb.inputEl);
       });
-
-    this.warnText = containerEl.createEl("small", {
-      text: "",
-      cls: "random-picker-warn",
-    });
-
-    this.updateWarnText(this.plugin.settings.listsFolder);
 
     // Templates List
     containerEl.createEl("h2", { text: "Templates" });
@@ -144,6 +159,9 @@ export class SettingTab extends PluginSettingTab {
     });
     longDoc.createDiv({
       text: "Use ${Filename} to insert a random line from that file. You can use the same file more than once.",
+    });
+    longDoc.createDiv({
+      text: "e.g.: \"Random Name ${Names} ${Surenames}\" will pick a random line from the 'Names' file and another from the 'Surenames' file in your data folder.",
     });
     new Setting(containerEl)
       .setDesc(longDoc)

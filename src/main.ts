@@ -127,10 +127,10 @@ export default class RandomPickerPlugin extends Plugin {
 
   getRandomSources(): Map<string, RandomSource> {
     const randomSources = new Map();
-    const randomNotesFolder = this.app.vault.getFolderByPath(this.settings.listsFolder);
+    const randomNotesFolder = this.app.vault.getFolderByPath(this.settings.dataFolder);
 
     if (!randomNotesFolder) {
-      new Notice(`Random Picker: Lists folder not found at path "${this.settings.listsFolder}"`);
+      new Notice(`Random Picker: Lists folder not found at path "${this.settings.dataFolder}"`);
       return randomSources;
     }
 
