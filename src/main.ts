@@ -85,11 +85,7 @@ export default class RandomPickerPlugin extends Plugin {
   onunload() { }
 
   async loadSettings() {
-    this.settings = Object.assign(
-      {},
-      DEFAULT_SETTINGS,
-      await this.loadData()
-    );
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 
     this.settings.templates = this.settings.templates.map(
       (t) => new RandomPickTemplate(t.name, t.template)
@@ -126,7 +122,7 @@ export default class RandomPickerPlugin extends Plugin {
   }
 
   getRandomSources(): Map<string, RandomSource> {
-    const randomSources = new Map();
+    const randomSources: Map<string, RandomSource> = new Map();
     const randomNotesFolder = this.app.vault.getFolderByPath(this.settings.dataFolder);
 
     if (!randomNotesFolder) {
@@ -135,7 +131,7 @@ export default class RandomPickerPlugin extends Plugin {
     }
 
     this.innerGetRandomSources(randomNotesFolder, randomSources);
-    console.log("Random Picker: Loaded random sources:", randomSources);
+    console.debug("Random Picker: Loaded random sources:", randomSources);
     return randomSources;
   }
 
@@ -151,7 +147,7 @@ export default class RandomPickerPlugin extends Plugin {
   insertRandomPickFromSource(editor: Editor, template: RandomPickTemplate) {
     template
       .generate(this.getRandomSources())
-      .then((value) => this.editorInsertText(editor, value));
+      .then((value) => this.editorInsertText(editor, value), () => { });
   }
 }
 
@@ -192,14 +188,14 @@ class RandomPickPreviewModal extends Modal {
 
     this.template
       .generate(this.sources)
-      .then((text) => previewEl.setText(text));
+      .then((text) => previewEl.setText(text), () => { });
 
     new Setting(contentEl)
       .addButton((btn) =>
         btn.setButtonText("Regenerate").onClick(() => {
           this.template
             .generate(this.sources)
-            .then((text) => previewEl.setText(text));
+            .then((text) => previewEl.setText(text), () => { });
         })
       )
       .addButton((btn) =>

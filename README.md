@@ -76,6 +76,10 @@ You can also still directly reference specific lists:
 **Note:** This will only work one level deep. You cannot nest group picks
 within other group picks.
 
+The plugin will make sure that picks are unique within a single template, so if
+you use the same list multiple times in a template, it will not pick the same
+item.
+
 You can use this feature to e.g. 
 
 - Create lists of items for role-playing games, one with trash items and one

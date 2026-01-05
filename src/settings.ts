@@ -2,8 +2,6 @@ import {
   App,
   PluginSettingTab,
   Setting,
-  TAbstractFile,
-  TFile,
   TFolder,
   AbstractInputSuggest,
 } from "obsidian";
@@ -24,7 +22,6 @@ export const DEFAULT_SETTINGS: RandomPickerPluginSettings = {
 export class FolderSuggest extends AbstractInputSuggest<TFolder> {
   constructor(public app: App, public inputEl: HTMLInputElement) {
     super(app, inputEl);
-    //this.textInputEl = inputEl;
   }
 
   getSuggestions(inputStr: string): TFolder[] {
@@ -73,7 +70,7 @@ export class SettingTab extends PluginSettingTab {
           template.name = value;
           await this.plugin.saveSettings();
         });
-        text.setPlaceholder("Unique Name");
+        text.setPlaceholder("Unique name");
 
         text.inputEl.addClass("random-picker-full");
       });
@@ -128,10 +125,9 @@ export class SettingTab extends PluginSettingTab {
 
     containerEl.empty();
 
-    containerEl.createEl("h1", { text: "Random Picker Settings" });
     new Setting(containerEl)
       .setHeading()
-      .setName("Data Folder")
+      .setName("Data folder")
       .setDesc(
         "The folder containing your data files for random selection."
       )
@@ -152,7 +148,7 @@ export class SettingTab extends PluginSettingTab {
       });
 
     // Templates List
-    containerEl.createEl("h2", { text: "Templates" });
+    new Setting(containerEl).setName("Templates").setHeading();
     const longDoc = document.createDocumentFragment();
     longDoc.createDiv({
       text: "Create templates for generating random texts.",
