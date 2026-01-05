@@ -9,11 +9,6 @@ import {
 import RandomPickerPlugin from "./main";
 import { RandomPickTemplate } from "./template";
 
-function fitTextAreaToContent(textArea: HTMLTextAreaElement): void {
-  textArea.style.height = "";
-  textArea.style.height = textArea.scrollHeight + "px";
-}
-
 export interface RandomPickerPluginSettings {
   dataFolder: string;
   templates: RandomPickTemplate[];
@@ -77,7 +72,7 @@ export class SettingTab extends PluginSettingTab {
         });
         text.setPlaceholder("Unique name");
 
-        text.inputEl.addClass("random-picker-full");
+        text.inputEl.addClass("random-picker-full-width");
       });
 
     nameSetting.infoEl.remove();
@@ -87,8 +82,6 @@ export class SettingTab extends PluginSettingTab {
       .setClass("random-picker-template-setting")
       .addTextArea(text => {
         text.setValue(template.template).onChange(async (value) => {
-          // Automatically resize the textarea to fit its content when changed
-          fitTextAreaToContent(text.inputEl);
           template.template = value;
           await this.plugin.saveSettings();
         });
@@ -97,9 +90,9 @@ export class SettingTab extends PluginSettingTab {
         text.setPlaceholder(
           "e.g. Random Name ${Names} ${Surenames}"
         );
-        text.inputEl.addClass("random-picker-full");
 
-        fitTextAreaToContent(text.inputEl);
+        text.inputEl.addClass("random-picker-full-width");
+        text.inputEl.addClass("random-picker-fit-content");
       });
 
     templateSetting.infoEl.remove();

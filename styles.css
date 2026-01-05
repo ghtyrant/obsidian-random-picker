@@ -20,6 +20,10 @@ If your plugin does not need CSS, delete this file.
 	margin: 0 0 1em 0;
 }
 
-.random-picker-full {
-	width: 100%;
+.random-picker-full-width {
+	min-width: 100%;
+}
+
+.random-picker-fit-content {
+  field-sizing: content;
 }
