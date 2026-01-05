@@ -1,6 +1,7 @@
 # Obsidian Random Picker Plugin
 
-Insert random lines from custom lists into your Obsidian notes using simple templates.
+Easily generate random text snippets in your Obsidian notes using customizable templates and data sources.
+Use it to quickly create random names, items, or any other text-based content.
 
 ![Template](./img/template.png)
 ![Preview](./img/preview.png)
@@ -9,11 +10,11 @@ Insert random lines from custom lists into your Obsidian notes using simple temp
 
 1. **Install the plugin** from the Obsidian community plugins browser.
 2. **Configure the plugin** in the settings tab.
-   - **Lists Folder**: Set the path to the folder where you will store your random lists.
-   - **Templates**: Create your own templates to generate the output.
+   - **Data Folder**: Set the path to the folder where you will store your random lists.
+   - **Templates**: Manage your templates.
 3. **Use the commands** to insert random text into your notes.
-   - `Insert random pick`: Opens a modal to select a template and inserts the generated text.
-   - `Insert random pick with preview`: Opens a modal to select a template, shows a preview of the generated text, and allows you to regenerate the text before inserting it.
+   - `Insert random pick`: Choose a template and directly insert the generated text.
+   - `Insert random pick with preview`: Choose a template and view a preview of the generated text, with the possibility to regenerate.
 
 ## Templates
 
@@ -54,13 +55,15 @@ Hello, my name is John!
 You can also create more complex templates that use multiple picks and groupings.
 Create a subfolder in your data folder called `Wines`, and inside that folder, create two notes: `Red` and `White`.
 - `Red`:
-```- Merlot
+```
+- Merlot
 - Cabernet Sauvignon
 - Pinot Noir
 ```
 
 - `White`:
-```- Chardonnay
+```
+- Chardonnay
 - Sauvignon Blanc
 - Riesling
 ```
@@ -79,11 +82,15 @@ You can also still directly reference specific lists:
 **Note:** This will only work one level deep. You cannot nest group picks
 within other group picks.
 
+You can also specify the same list multiple times:
+
+```I would like a glass of ${Wines} and a glass of ${Wines}.```
+
 The plugin will make sure that picks are unique within a single template, so if
 you use the same list multiple times in a template, it will not pick the same
 item.
 
-You can use this feature to e.g. 
+You can use these features to e.g. 
 
 - Create lists of items for role-playing games, one with trash items and one
 with valuable items, and then create a template
