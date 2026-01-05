@@ -1,90 +1,86 @@
-# Obsidian Sample Plugin
+# Obsidian Random Picker Plugin
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+Insert random lines from custom lists into your Obsidian notes using simple templates.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## How to Use
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+1. **Install the plugin** from the Obsidian community plugins browser.
+2. **Configure the plugin** in the settings tab.
+   - **Lists Folder**: Set the path to the folder where you will store your random lists.
+   - **Templates**: Create your own templates to generate the output.
+3. **Use the commands** to insert random text into your notes.
+   - `Insert random pick`: Opens a modal to select a template and inserts the generated text.
+   - `Insert random pick with preview`: Opens a modal to select a template, shows a preview of the generated text, and allows you to regenerate the text before inserting it.
 
-## First time developing plugins?
+## Templates
 
-Quick starting guide for new plugin devs:
+Templates are the core of this plugin. They allow you to define the structure
+of the output and how the random data is used. Templates are written in a
+simple template language that allows you to include random data from your
+sources.
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+### Example
 
-## Releasing new releases
+Let's say you have a folder called `Lists` in your vault, and inside that
+folder, you have a note called `Names` with the following content:
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
-
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
-
-## Adding your plugin to the community plugin list
-
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
-
-## How to use
-
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
-
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/obsidianmd/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
+```
+- John
+- Jane
+- Peter
+- Mary
 ```
 
-If you have multiple URLs, you can also do:
+Configure the plugin to use the `Lists` folder as your data folder. Then you
+can create a template like this:
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
+```
+Hello, my name is ${Names}!
 ```
 
-## API Documentation
+Open the command palette and execute `Insert random pick`. Select the template
+that you just created. The plugin will insert your template with a random name
+into the current note. For example, the output could be:
 
-See https://docs.obsidian.md
+```
+Hello, my name is John!
+```
+
+### Grouping and Multiple Picks
+
+You can also create more complex templates that use multiple picks and groupings.
+Create a subfolder in your data folder called `Wines`, and inside that folder, create two notes: `Red` and `White`.
+- `Red`:
+```- Merlot
+- Cabernet Sauvignon
+- Pinot Noir
+```
+
+- `White`:
+```- Chardonnay
+- Sauvignon Blanc
+- Riesling
+```
+
+Now, create a template like this:
+
+```I would like a glass of ${Wines}.```
+
+When you run the command, the plugin will randomly choose between the `Red` and
+`White` lists and then pick a random wine from the selected list.
+
+You can also still directly reference specific lists:
+
+```I would like a glass of ${Wines/Red} and a glass of ${Wines/White}.```
+
+**Note:** This will only work one level deep. You cannot nest group picks
+within other group picks.
+
+You can use this feature to e.g. 
+
+- Create lists of items for role-playing games, one with trash items and one
+with valuable items, and then create a template
+that randomly picks from either list to generate loot.
+- Create a list of first names and a list of last names, and then create a
+template that randomly combines them to generate character names.
+
