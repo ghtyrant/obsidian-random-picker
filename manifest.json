@@ -1,9 +1,9 @@
 {
 	"id": "random-picker",
 	"name": "Random Picker",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
-	"description": "Easily generate random text snippets in your Obsidian notes using customizable templates and data sources.",
+	"description": "Easily generate random text snippets in your notes using customizable templates and data sources.",
 	"author": "Fabian Schlager",
 	"authorUrl": "https://github.com/ghtyrant/",
 	"isDesktopOnly": false

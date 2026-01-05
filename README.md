@@ -1,6 +1,6 @@
 # Obsidian Random Picker Plugin
 
-Easily generate random text snippets in your Obsidian notes using customizable templates and data sources.
+Easily generate random text snippets in your notes using customizable templates and data sources.
 Use it to quickly create random names, items, or any other text-based content.
 
 ![Template](./img/template.png)
