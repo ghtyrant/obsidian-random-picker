@@ -2,6 +2,9 @@
 
 Insert random lines from custom lists into your Obsidian notes using simple templates.
 
+![Template](./img/template.png)
+![Preview](./img/preview.png)
+
 ## How to Use
 
 1. **Install the plugin** from the Obsidian community plugins browser.
