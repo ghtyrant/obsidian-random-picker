@@ -13,6 +13,7 @@ If your plugin does not need CSS, delete this file.
 
 .random-picker-template-setting {
 	border-top: 0;
+  font-family: var(--font-monospace);
 }
 
 .random-picker-template-separator {
