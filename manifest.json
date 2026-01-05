@@ -3,7 +3,7 @@
 	"name": "Random Picker",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Insert randomly selected items from a predefined list into your notes.",
+	"description": "Easily generate random text snippets in your Obsidian notes using customizable templates and data sources.",
 	"author": "Fabian Schlager",
 	"authorUrl": "https://github.com/ghtyrant/",
 	"isDesktopOnly": false
